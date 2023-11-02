@@ -1,0 +1,21 @@
+name: Assign Pull Request
+
+on:
+  pull_request:
+    types: [opened, reopened]
+
+jobs:
+  assign:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Assign to MVP milestone
+        uses: peter-evans/milestone@v2
+        with:
+          milestone: MVP
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Assign to Esterjudith
+        uses: peter-evans/create-issue-comment@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: '/assign @Esterjudith'
