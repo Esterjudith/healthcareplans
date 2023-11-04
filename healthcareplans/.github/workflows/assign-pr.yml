@@ -1,0 +1,19 @@
+name: Assign Pull Request
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+
+jobs:
+  assign:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Assign PR
+      env:
+        ASSIGN_TO: ${{ secrets.ASSIGNEE_USERNAME }} 
+      run: |
+        gh pr edit ${{ github.event.number }} --assignee $ASSIGN_TO
+
