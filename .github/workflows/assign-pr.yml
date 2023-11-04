@@ -13,6 +13,7 @@ jobs:
     steps:
     - name: Assign PR
       env:
+        GH_TOKEN: ${{ github.token }}
         ASSIGN_TO: ${{ github.repository_owner }} 
       run: |
         owner=${{ github.repository_owner }}
