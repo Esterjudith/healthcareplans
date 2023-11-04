@@ -13,6 +13,10 @@ jobs:
     steps:
     - name: Assign PR
       env:
-        ASSIGN_TO: ${{ secrets.ASSIGNEE_USERNAME }} 
+        ASSIGN_TO: ${{ github.repository_owner }} 
       run: |
-        gh pr edit ${{ github.event.number }} --assignee $ASSIGN_TO
+        owner=${{ github.repository_owner }}
+          repo=${{ github.event.repository.name }}
+          issue_number=${{ github.event.number }}
+          desired_username=${ASSIGN_TO}
+          gh api -X PATCH "/repos/$owner/$repo/issues/$issue_number/assignees" -f assignees="$desired_username"
