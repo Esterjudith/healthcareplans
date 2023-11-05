@@ -1,23 +1,32 @@
-name: Assign Pull Request
+name: Auto Assign PR to Owner
 
 on:
-  pull_request:
-    types:
-      - opened
-      - synchronize
+  push:
+    branches:
+      - '**'
 
 jobs:
-  assign:
+  create:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Assign PR
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        ASSIGN_TO: ${{ github.repository_owner }} 
-      run: |
-        owner=${{ github.repository_owner }}
-          repo=${{ github.event.repository.name }}
-          issue_number=${{ github.event.number }}
-          desired_username=${ASSIGN_TO}
-          gh api -X PATCH "/repos/$owner/$repo/issues/$issue_number/assignees" -f assignees="$desired_username"
+      - name: Create PR
+        id: create_pr
+        uses: repo-sync/pull-request@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          pr_title: "Update from ${{ github.ref }}"
+          pr_body: ":wave: I just pushed to ${{ github.ref }}. Let's update the base branch!"
+          destination_branch: "main"  # Change this to your target branch
+          source_branch: ""  # Empty means use the current branch
+      - name: Install GitHub CLI
+        run: |
+           sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
+           sudo apt-add-repository https://cli.github.com/packages
+           sudo apt update
+           sudo apt install gh
+      - name: Assign PR
+        run: |
+          gh pr update ${{ steps.create_pr.outputs.pull_request_number }} --assignee $OWNER
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OWNER: ${{ github.repository_owner }}
