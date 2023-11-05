@@ -9,6 +9,8 @@ jobs:
   create:
     runs-on: ubuntu-latest
     steps:
+      - name: Check current directory
+        run: pwd 
       - name: Create PR
         id: create_pr
         uses: repo-sync/pull-request@v2
