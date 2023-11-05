@@ -9,26 +9,27 @@ jobs:
   create:
     runs-on: ubuntu-latest
     steps:
-      - name: Check current directory
-        run: pwd 
+      - name: Checkout code
+        uses: actions/checkout@v2
+
       - name: Create PR
         id: create_pr
-        uses: repo-sync/pull-request@v2
+        uses: actions/github-script@v5
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          pr_title: "Update from ${{ github.ref }}"
-          pr_body: ":wave: I just pushed to ${{ github.ref }}. Let's update the base branch!"
-          destination_branch: "main"  # Change this to your target branch
-          source_branch: ""  # Empty means use the current branch
-      - name: Install GitHub CLI
-        run: |
-           sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
-           sudo apt-add-repository https://cli.github.com/packages
-           sudo apt update
-           sudo apt install gh
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = await github.rest.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Update from ${context.ref}`,
+              head: context.ref,
+              base: 'main',  
+              body: `:wave: I just pushed to ${context.ref}. Let's update the base branch!`,
+            });
+            return pr.data.number;
+
       - name: Assign PR
         run: |
-          gh pr update ${{ steps.create_pr.outputs.pull_request_number }} --assignee $OWNER
+          gh pr update ${{ steps.create_pr.outputs }} --assignee ${{ github.repository_owner }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OWNER: ${{ github.repository_owner }}
