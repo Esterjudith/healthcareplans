@@ -1,7 +1,12 @@
 import Image from 'next/image'
+import Proposal from './Proposal'
 
 export default function Home() {
   return (
-   <h1>Hello world</h1>
+    <div>
+      <h1>Home</h1>
+      <Proposal />
+    </div>
+
   )
 }
